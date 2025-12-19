@@ -3,7 +3,7 @@ import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
-import { z } from "zod";
+import registerRoutes from "./infrastructure/http/routes/index.mjs";
 
 export async function buildServer() {
   const app = Fastify({ logger: true });
@@ -18,12 +18,7 @@ export async function buildServer() {
   });
   await app.register(swaggerUI, { routePrefix: "/docs" });
 
-  app.get("/health", async () => ({ ok: true }));
-
-  app.get("/api/v1/echo", async (req) => {
-    const query = z.object({ msg: z.string().min(1) }).parse(req.query);
-    return { echo: query.msg };
-  });
+  await app.register(registerRoutes);
 
   return app;
 }
